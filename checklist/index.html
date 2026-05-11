@@ -205,7 +205,9 @@
 </footer>
 
 <script>
-// Simple form handler — stores leads and shows download
+// CONFIGURATION — paste your Google Apps Script URL here after setup
+const SCRIPT_URL = 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE';
+
 async function handleSubmit(e) {
   e.preventDefault();
   const btn = document.getElementById('submitBtn');
@@ -215,29 +217,20 @@ async function handleSubmit(e) {
   btn.textContent = 'Sending...';
   btn.disabled = true;
 
-  // Store lead in localStorage (for demo) + send to your email via a form service
+  // Always store locally as backup
   const lead = { firstName, email, date: new Date().toISOString(), source: 'checklist-landing' };
   const leads = JSON.parse(localStorage.getItem('opi_leads') || '[]');
   leads.push(lead);
   localStorage.setItem('opi_leads', JSON.stringify(leads));
 
-  // Submit to Formspree (free email form service — set up your endpoint below)
-  try {
-    // Formsubmit.co — no account needed, sends to your email directly
-    const form = new FormData();
-    form.append('name', firstName);
-    form.append('email', email);
-    form.append('_subject', 'New OPI Millions Lead: ' + firstName);
-    form.append('_captcha', 'false');
-    form.append('_template', 'table');
-    form.append('message', 'New checklist download from ' + firstName + ' (' + email + ') at ' + new Date().toLocaleString());
-    await fetch('https://formsubmit.co/opimind@gmail.com', {
-      method: 'POST',
-      body: form
-    });
-  } catch(err) { /* silent fail — still show success */ }
+  // Send to Google Sheets via Apps Script (no third-party service needed)
+  if (SCRIPT_URL && SCRIPT_URL !== 'PASTE_YOUR_GOOGLE_SCRIPT_URL_HERE') {
+    try {
+      await fetch(SCRIPT_URL + '?name=' + encodeURIComponent(firstName) + '&email=' + encodeURIComponent(email) + '&source=checklist', { mode: 'no-cors' });
+    } catch(err) { /* silent fail */ }
+  }
 
-  // Show success state
+  // Show success regardless (download is the main goal)
   document.getElementById('leadForm').style.display = 'none';
   document.getElementById('successState').style.display = 'block';
   document.querySelector('.checklist-preview').style.display = 'none';
