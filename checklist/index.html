@@ -122,7 +122,7 @@
       <div class="success-icon">🎉</div>
       <h3>It's on its way!</h3>
       <p>Check your inbox for the Investor Hail Hit Checklist. While you wait — download it directly:</p>
-      <a href="https://opimillions.com/downloads/investor-hail-hit-checklist.html" class="btn-download" target="_blank">⬇ Download Now</a>
+      <a href="/downloads/investor-hail-hit-checklist.html" class="btn-download" target="_blank">⬇ Download Now</a>
       <div class="upsell-box">
         <h4>Want the complete system?</h4>
         <p>The checklist is just one piece. OPI Millions is the full course — 5 modules teaching you how to find damage, read any policy, file the claim, and keep the money.</p>
@@ -223,10 +223,17 @@ async function handleSubmit(e) {
 
   // Submit to Formspree (free email form service — set up your endpoint below)
   try {
-    await fetch('https://formspree.io/f/YOUR_FORM_ID', {
+    // Formsubmit.co — no account needed, sends to your email directly
+    const form = new FormData();
+    form.append('name', firstName);
+    form.append('email', email);
+    form.append('_subject', 'New OPI Millions Lead: ' + firstName);
+    form.append('_captcha', 'false');
+    form.append('_template', 'table');
+    form.append('message', 'New checklist download from ' + firstName + ' (' + email + ') at ' + new Date().toLocaleString());
+    await fetch('https://formsubmit.co/opimind@gmail.com', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
-      body: JSON.stringify({ firstName, email, _subject: 'New OPI Millions Lead - ' + firstName })
+      body: form
     });
   } catch(err) { /* silent fail — still show success */ }
 
